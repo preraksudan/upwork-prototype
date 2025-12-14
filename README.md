@@ -1,97 +1,57 @@
-##  Table 1 (main):
-```
-id (primary key)
-text1 (varchar 255) [audio]
-text2 (varchar 255) [tag name]
-```
+CREATE TABLE `admin_users` (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
+  `password` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `username` (`username`)
+);
 
-```sql
--- Table 1: main
-  CREATE TABLE main (
-      id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-      text1 VARCHAR(255) NOT NULL,
-      text2 VARCHAR(255) NOT NULL
-  );
-```
+CREATE TABLE `spanish_audio` (
+  `id` int(10) unsigned NOT NULL,
+  `audio_file` varchar(255) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`,`audio_file`),
+  KEY `idx_audio` (`id`),
+  CONSTRAINT `spanish_audio_ibfk_1` FOREIGN KEY (`id`) REFERENCES `spanish_to_english` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `spanish_pos` (
+  `id` int(10) unsigned NOT NULL,
+  `pos` varchar(64) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`,`pos`),
+  KEY `pos` (`pos`),
+  KEY `idx_pos` (`id`),
+  CONSTRAINT `spanish_pos_ibfk_1` FOREIGN KEY (`id`) REFERENCES `spanish_to_english` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT `spanish_pos_ibfk_2` FOREIGN KEY (`pos`) REFERENCES `pos_definitions` (`pos`) ON DELETE CASCADE ON UPDATE CASCADE
+);
+
+CREATE TABLE `spanish_to_english` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `spanish` varchar(255) NOT NULL,
+  `english` varchar(255) NOT NULL,
+  `flag` tinyint(1) DEFAULT NULL,
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  KEY `idx_spanish` (`spanish`),
+  KEY `idx_english` (`english`)
+);
 
 
-## Table 2 (tag_definitions):
+CREATE TABLE `pos_definitions` (
+  `pos` varchar(64) NOT NULL,
+  `description` varchar(128) NOT NULL,
+  `created` timestamp NOT NULL DEFAULT current_timestamp(),
+  `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`pos`)
+);
 
-```
-tag_name (varchar 64) - primary key
-tag_description (varchar 128)
-```
+<img width="472" height="289" alt="Screenshot 2025-12-14 at 3 23 41 PM" src="https://github.com/user-attachments/assets/274c9560-94b7-4e64-ac18-50440c3c97cf" />
 
-```sql
-  -- Table 2: tag_definitions
-  CREATE TABLE tag_definitions (
-      tag_name VARCHAR(64) PRIMARY KEY,
-      tag_description VARCHAR(128) NOT NULL
-  );
-```
-
-
-##  Table 3 (main_tags)
-
-```
-fk_table_1_id (primary key)  -- linked to table 1
-fk_table_2_tag_name (primary key)  -- linked to table 2
-```
-
-```sql
--- Table 3: main_tags (many-to-many mapping)
-CREATE TABLE main_tags (
-    fk_table_1_id INT UNSIGNED NOT NULL,
-    fk_table_2_tag_name VARCHAR(64) NOT NULL,
-
-    PRIMARY KEY (fk_table_1_id, fk_table_2_tag_name),
-
-    CONSTRAINT fk_main_tags_main
-        FOREIGN KEY (fk_table_1_id)
-        REFERENCES main(id)
-        ON DELETE CASCADE,
-
-    CONSTRAINT fk_main_tags_tag
-        FOREIGN KEY (fk_table_2_tag_name)
-        REFERENCES tag_definitions(tag_name)
-        ON DELETE CASCADE
-) ENGINE=InnoDB;
-```
+<img width="540" height="403" alt="Screenshot 2025-12-14 at 3 23 25 PM" src="https://github.com/user-attachments/assets/84274a86-7bfd-4d9a-88ed-1d131872f480" />
 
 
 
-## Table 4 (main_audio) -- linked to table 1
-
-```
-fk_table_1_id  (unsigned int, primary key)
-audio_name (varchar 255, primary key)
-```
-
-```sql
--- Table 4: main_audio
-  CREATE TABLE main_audio (
-      fk_table_1_id INT UNSIGNED NOT NULL,
-      audio_name VARCHAR(255) NOT NULL,
-
-      PRIMARY KEY (fk_table_1_id, audio_name),
-
-      CONSTRAINT fk_main_audio_main
-          FOREIGN KEY (fk_table_1_id)
-          REFERENCES main(id)
-          ON DELETE CASCADE
-  ) ENGINE=InnoDB;
-```
----
-Each entry will be displayed in HTML as:
-
-Entry ID, Text 1, Text 2
-- zero or more tags (that can be deleted or added to) - tags should appear as tag description. When a new tag is added, the list of available tag descriptions will be shown to choose from.
-- zero or more audio files (that can be deleted or added to) (added audio files are uploaded to the server)
-
-#### Few Clarifying Questions (related to data source and management)
-```questions
-- Are audio files also stored as BLOB in Mysql DB.
-- For each audio file is there a corresponding label and mapped description ?
-- Is functionality for CRUD of tags and tag descrption also required.
-- Can one audio have multiple tags associated to it ?
-```
