@@ -1,3 +1,4 @@
+```sql
 CREATE TABLE `admin_users` (
   `id` int NOT NULL AUTO_INCREMENT,
   `username` varchar(50) COLLATE utf8mb4_general_ci NOT NULL,
@@ -48,7 +49,7 @@ CREATE TABLE `pos_definitions` (
   `updated` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
   PRIMARY KEY (`pos`)
 );
-
+```
 <img width="472" height="289" alt="Screenshot 2025-12-14 at 3 23 41 PM" src="https://github.com/user-attachments/assets/274c9560-94b7-4e64-ac18-50440c3c97cf" />
 
 <img width="540" height="403" alt="Screenshot 2025-12-14 at 3 23 25 PM" src="https://github.com/user-attachments/assets/84274a86-7bfd-4d9a-88ed-1d131872f480" />
